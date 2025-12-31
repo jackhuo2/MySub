@@ -2,8 +2,8 @@ name: Auto Update Sub
 
 on:
   schedule:
-    - cron: '0 */4 * * *' # 每 4 小时自动更新一次
-  workflow_dispatch:      # 允许手动触发更新
+    - cron: '0 */4 * * *' # 每 4 小时运行一次
+  workflow_dispatch:      # 允许手动触发
 
 jobs:
   run-sync:
@@ -11,6 +11,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          persist-credentials: true
+          fetch-depth: 0 # 获取完整历史记录以支持 rebase
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -28,5 +31,7 @@ jobs:
           git config --global user.email "bot@github.com"
           git config --global user.name "Sub-Bot"
           git add sub.txt
+          # 关键一步：先拉取云端改动，再提交
+          git pull --rebase origin main
           git commit -m "Update nodes" || exit 0
           git push
