@@ -9,138 +9,174 @@ from datetime import datetime, timedelta
 URL_SOURCES = [
     "https://www.gitlabip.xyz/Alvin9999/PAC/refs/heads/master/backup/img/1/2/ipp/hysteria2/1/config.json",
     "https://www.gitlabip.xyz/Alvin9999/PAC/refs/heads/master/backup/img/1/2/ipp/hysteria2/2/config.json",
-    "https://www.gitlabip.xyz/Alvin9999/PAC/refs/heads/master/backup/img/1/2/ipp/hysteria2/3/config.json",
-    "https://www.gitlabip.xyz/Alvin9999/PAC/refs/heads/master/backup/img/1/2/ipp/hysteria2/4/config.json",
     "https://www.gitlabip.xyz/Alvin9999/PAC/refs/heads/master/backup/img/1/2/ipp/clash.meta2/1/config.yaml",
     "https://www.gitlabip.xyz/Alvin9999/PAC/refs/heads/master/backup/img/1/2/ipp/clash.meta2/2/config.yaml",
-    "https://www.gitlabip.xyz/Alvin9999/PAC/refs/heads/master/backup/img/1/2/ipp/clash.meta2/3/config.yaml",
-    "https://www.gitlabip.xyz/Alvin9999/PAC/refs/heads/master/backup/img/1/2/ipp/clash.meta2/4/config.yaml",
-    "https://www.gitlabip.xyz/Alvin9999/PAC/refs/heads/master/backup/img/1/2/ipp/clash.meta2/5/config.yaml",
-    "https://www.gitlabip.xyz/Alvin9999/PAC/refs/heads/master/backup/img/1/2/ipp/clash.meta2/6/config.yaml",
     "https://www.gitlabip.xyz/Alvin9999/PAC/refs/heads/master/backup/img/1/2/ipp/singbox/1/config.json",
-    "https://www.gitlabip.xyz/Alvin9999/PAC/refs/heads/master/backup/img/1/2/ip/singbox/2/config.json",
     "https://gitlab.com/free9999/ipupdate/-/raw/master/backup/img/1/2/ipp/hysteria2/1/config.json",
-    "https://fastly.jsdelivr.net/gh/Alvin9999/PAC@latest/backup/img/1/2/ipp/hysteria2/2/config.json",
-    "https://gitlab.com/free9999/ipupdate/-/raw/master/backup/img/1/2/ipp/hysteria2/3/config.json",
-    "https://fastly.jsdelivr.net/gh/Alvin9999/PAC@latest/backup/img/1/2/ipp/hysteria2/4/config.json",
-    "https://gitlab.com/free9999/ipupdate/-/raw/master/backup/img/1/2/ipp/clash.meta2/1/config.yaml",
-    "https://fastly.jsdelivr.net/gh/Alvin9999/PAC@latest/backup/img/1/2/ipp/clash.meta2/2/config.yaml",
-    "https://gitlab.com/free9999/ipupdate/-/raw/master/backup/img/1/2/ipp/clash.meta2/3/config.yaml",
-    "https://fastly.jsdelivr.net/gh/Alvin9999/PAC@latest/backup/img/1/2/ipp/clash.meta2/4/config.yaml",
-    "https://gitlab.com/free9999/ipupdate/-/raw/master/backup/img/1/2/ipp/clash.meta2/5/config.yaml",
-    "https://fastly.jsdelivr.net/gh/Alvin9999/PAC@latest/backup/img/1/2/ipp/clash.meta2/6/config.yaml",
-    "https://gitlab.com/free9999/ipupdate/-/raw/master/backup/img/1/2/ipp/singbox/1/config.json",
-    "https://fastly.jsdelivr.net/gh/Alvin9999/PAC@latest/backup/img/1/2/ip/singbox/2/config.json"
+    "https://fastly.jsdelivr.net/gh/Alvin9999/PAC@latest/backup/img/1/2/ipp/clash.meta2/1/config.yaml"
 ]
 
 # 获取北京时间 (UTC+8)
 beijing_time = (datetime.utcnow() + timedelta(hours=8)).strftime("%m%d-%H%M")
 
-def parse_to_link(item):
+def get_node_info(item):
+    """提取节点基础信息"""
     server = item.get('server') or item.get('add')
     port = item.get('port') or item.get('server_port') or item.get('port_num')
-    
-    # 兼容处理 server:port 格式
-    if server and ':' in str(server) and not port:
-        if '[' in str(server):
-            parts = str(server).split(']:')
-            server, port = parts[0] + ']', (parts[1] if len(parts) > 1 else "")
-        else:
-            parts = str(server).rsplit(':', 1)
-            server, port = parts[0], parts[1]
-
     if not server or not port: return None
 
     p_type = str(item.get('type', '')).lower()
-    # 自动识别 Hysteria2 类型
     if not p_type and item.get('auth') and item.get('bandwidth'): p_type = 'hysteria2'
-
+    
     tls_data = item.get('tls', {})
     if isinstance(tls_data, bool): tls_data = {}
     sni = item.get('servername') or item.get('sni') or tls_data.get('server_name') or tls_data.get('sni') or "www.microsoft.com"
     
-    # 构造带北京时间的备注并进行 URL 编码
+    # 备注格式：协议_地址末段_时间
     addr_short = str(server).split('.')[-1] if '.' in str(server) else "v6"
-    raw_tag = f"{p_type.upper()}_{addr_short}_{beijing_time}"
-    node_name = urllib.parse.quote(raw_tag)
+    name = f"{p_type.upper()}_{addr_short}_{beijing_time}"
     
-    server_display = f"[{server}]" if ":" in str(server) and "[" not in str(server) and "," not in str(server) else server
+    return {
+        "name": name, "server": server, "port": int(port), "type": p_type,
+        "sni": sni, "uuid": item.get('uuid') or item.get('id') or item.get('password'),
+        "auth": item.get('auth') or item.get('password') or item.get('auth-str'),
+        "tls_data": tls_data, "item": item
+    }
 
-    # --- 1. Hysteria 2 ---
-    if p_type in ['hysteria2', 'hy2']:
-        auth = item.get('auth') or item.get('password') or item.get('auth-str')
-        return f"hysteria2://{auth}@{server_display}:{port}?sni={sni}&insecure=1&allowInsecure=1#{node_name}"
-
-    # --- 2. VLESS Reality ---
-    elif p_type == 'vless':
-        uuid = item.get('uuid') or item.get('id')
-        link = f"vless://{uuid}@{server_display}:{port}?encryption=none&security=reality&sni={sni}"
-        ropts = item.get('reality-opts', {})
-        rbox = tls_data.get('reality', {})
-        pbk = ropts.get('public-key') or rbox.get('public_key')
-        sid = ropts.get('short-id') or rbox.get('short_id')
-        if pbk: link += f"&pbk={pbk}"
-        if sid: link += f"&sid={sid}"
-        # 强制补全 v2rayN 需要的传输参数
-        link += "&type=tcp&headerType=none"
-        return f"{link}#{node_name}"
-
-    # --- 3. TUIC (精准适配双 UUID 格式) ---
-    elif p_type == 'tuic':
-        uuid = item.get('uuid') or item.get('id') or item.get('password')
-        return f"tuic://{uuid}%3A{uuid}@{server_display}:{port}?sni={sni}&alpn=h3&insecure=1&allowInsecure=1&congestion_control=bbr#{node_name}"
+def create_clash_proxy(info):
+    """转换为 Clash 节点字典"""
+    p = {
+        "name": info["name"],
+        "server": info["server"],
+        "port": info["port"],
+        "udp": True,
+        "tls": True,
+        "sni": info["sni"],
+        "skip-cert-verify": True
+    }
     
-    # --- 4. Hysteria 1 ---
-    elif p_type == 'hysteria':
-        auth = item.get('auth') or item.get('auth-str')
-        return f"hysteria://{server_display}:{port}?auth={auth}&sni={sni}&insecure=1&allowInsecure=1#{node_name}"
-
-    return None
+    if info["type"] in ['hysteria2', 'hy2']:
+        p["type"] = "hysteria2"
+        p["password"] = info["auth"]
+    elif info["type"] == 'vless':
+        p["type"] = "vless"
+        p["uuid"] = info["uuid"]
+        p["network"] = "tcp"
+        ropts = info["item"].get('reality-opts', {})
+        rbox = info["tls_data"].get('reality', {})
+        p["reality-opts"] = {
+            "public-key": ropts.get('public-key') or rbox.get('public_key'),
+            "short-id": ropts.get('short-id') or rbox.get('short_id')
+        }
+        p["client-fingerprint"] = "chrome"
+    elif info["type"] == 'tuic':
+        p["type"] = "tuic"
+        p["uuid"] = info["uuid"]
+        p["password"] = info["uuid"]
+        p["alpn"] = ["h3"]
+        p["congestion-controller"] = "bbr"
+    elif info["type"] == 'hysteria':
+        p["type"] = "hysteria"
+        p["auth_str"] = info["auth"]
+        p["up": "100", "down": "100"]
+    else:
+        return None
+    return p
 
 def main():
-    unique_links = set()
+    nodes_data = []
+    # 1. 抓取并解析数据
     for url in URL_SOURCES:
         try:
             r = requests.get(url, timeout=10)
             if r.status_code != 200: continue
             
-            # Clash 格式处理
-            if 'clash' in url or 'proxies:' in r.text:
-                data = yaml.safe_load(r.text)
-                if isinstance(data, dict) and 'proxies' in data:
-                    for p in data['proxies']:
-                        link = parse_to_link(p)
-                        if link: unique_links.add(link)
-            # JSON 格式处理
+            if 'clash' in url or 'yaml' in url:
+                content = yaml.safe_load(r.text)
             else:
-                data = json.loads(r.text)
-                if isinstance(data, dict):
-                    if 'outbounds' in data:
-                        for o in data['outbounds']:
-                            link = parse_to_link(o)
-                            if link: unique_links.add(link)
-                    elif data.get('server') or data.get('add'):
-                        link = parse_to_link(data)
-                        if link: unique_links.add(link)
-        except Exception:
-            continue
+                content = json.loads(r.text)
+            
+            proxies_list = []
+            if isinstance(content, dict):
+                proxies_list = content.get('proxies', content.get('outbounds', [content] if 'server' in content else []))
+            elif isinstance(content, list):
+                proxies_list = content
 
-    if unique_links:
-        final_list = sorted(list(unique_links))
-        full_content = "\n".join(final_list)
+            for p in proxies_list:
+                info = get_node_info(p)
+                if info: nodes_data.append(info)
+        except: continue
+
+    if not nodes_data:
+        print("❌ 未捕获到节点")
+        return
+
+    # 2. 生成通用链接 (node.txt & sub.txt)
+    links = []
+    for info in nodes_data:
+        name_enc = urllib.parse.quote(info["name"])
+        srv = f"[{info['server']}]" if ":" in str(info['server']) else info['server']
         
-        # 写入明文节点文件
-        with open("nodes.txt", "w", encoding="utf-8") as f:
-            f.write(full_content)
-            
-        # 写入 Base64 订阅文件
-        encoded_content = base64.b64encode(full_content.strip().encode("utf-8")).decode("utf-8")
-        with open("sub.txt", "w", encoding="utf-8") as f:
-            f.write(encoded_content)
-            
-        print(f"✅ 处理完成！时间：{beijing_time}，共捕获 {len(unique_links)} 个节点。")
-    else:
-        print("❌ 未捕获到任何有效节点。")
+        if info["type"] == "tuic":
+            links.append(f"tuic://{info['uuid']}%3A{info['uuid']}@{srv}:{info['port']}?sni={info['sni']}&alpn=h3&insecure=1&allowInsecure=1&congestion_control=bbr#{name_enc}")
+        elif info["type"] in ["hysteria2", "hy2"]:
+            links.append(f"hysteria2://{info['auth']}@{srv}:{info['port']}?sni={info['sni']}&insecure=1&allowInsecure=1#{name_enc}")
+        elif info["type"] == "vless":
+            ropts = info["item"].get('reality-opts', {})
+            rbox = info["tls_data"].get('reality', {})
+            pbk = ropts.get('public-key') or rbox.get('public_key')
+            sid = ropts.get('short-id') or rbox.get('short_id')
+            links.append(f"vless://{info['uuid']}@{srv}:{info['port']}?encryption=none&security=reality&sni={info['sni']}&pbk={pbk}&sid={sid}&type=tcp&headerType=none#{name_enc}")
+        elif info["type"] == "hysteria":
+            links.append(f"hysteria://{srv}:{info['port']}?auth={info['auth']}&sni={info['sni']}&insecure=1&allowInsecure=1#{name_enc}")
+
+    # 写入 node.txt (明文)
+    unique_links = sorted(list(set(links)))
+    full_text = "\n".join(unique_links)
+    with open("node.txt", "w", encoding="utf-8") as f:
+        f.write(full_text)
+
+    # 写入 sub.txt (Base64)
+    with open("sub.txt", "w", encoding="utf-8") as f:
+        f.write(base64.b64encode(full_text.encode()).decode())
+
+    # 3. 生成 Clash YAML
+    clash_proxies = [create_clash_proxy(n) for n in nodes_data if create_clash_proxy(n)]
+    # 去重处理
+    seen_names = set()
+    final_clash_proxies = []
+    for p in clash_proxies:
+        if p["name"] not in seen_names:
+            final_clash_proxies.append(p)
+            seen_names.add(p["name"])
+
+    clash_config = {
+        "port": 7890, "socks-port": 7891, "allow-lan": True, "mode": "rule", "log-level": "info",
+        "proxies": final_clash_proxies,
+        "proxy-groups": [
+            {
+                "name": "🚀 节点选择",
+                "type": "select",
+                "proxies": [p["name"] for p in final_clash_proxies] + ["DIRECT"]
+            },
+            {
+                "name": "⚡ 自动选择",
+                "type": "url-test",
+                "url": "http://www.gstatic.com/generate_204",
+                "interval": 300,
+                "proxies": [p["name"] for p in final_clash_proxies]
+            }
+        ],
+        "rules": [
+            "DOMAIN-SUFFIX,google.com,🚀 节点选择",
+            "MATCH,🚀 节点选择"
+        ]
+    }
+
+    with open("clash.yaml", "w", encoding="utf-8") as f:
+        yaml.dump(clash_config, f, allow_unicode=True, sort_keys=False)
+    
+    print(f"✅ 处理完成！已生成 node.txt, sub.txt, clash.yaml | 时间：{beijing_time}")
 
 if __name__ == "__main__":
     main()
