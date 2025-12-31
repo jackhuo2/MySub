@@ -3,9 +3,9 @@ name: Auto Update Sub
 on:
   schedule:
     - cron: '0 */4 * * *' # 每 4 小时自动运行一次
-  workflow_dispatch:      # 支持手动点击按钮运行
+  workflow_dispatch:      # 支持手动点击按钮立即运行
 
-# 确保 Actions 有权向你的仓库提交代码
+# 授予 Actions 写入仓库的权限
 permissions:
   contents: write
 
@@ -17,7 +17,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0 # 获取完整历史以便进行 rebase
+          fetch-depth: 0 # 获取完整历史以支持 rebase 同步
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -30,20 +30,20 @@ jobs:
 
       - name: Sync and Process
         run: |
-          # 1. 配置 Git 用户身份
+          # 1. 配置 Git 身份
           git config --global user.email "bot@github.com"
           git config --global user.name "Sub-Bot"
           
-          # 2. 强制拉取远程最新代码（解决手动改代码后的同步冲突）
+          # 2. 核心：在运行脚本前先同步远程仓库，防止 rejected 报错
           git pull origin main --rebase
           
-          # 3. 运行 Python 脚本生成订阅文件
+          # 3. 运行 Python 脚本 (生成 sub.txt 和 nodes.txt)
           python main.py
           
-          # 4. 提交并推送 sub.txt 到仓库
-          if [ -f "sub.txt" ]; then
-            git add sub.txt
-            # 如果文件没变化，commit 会跳过而不会报错
+          # 4. 检查并提交生成的文件
+          if [ -f "sub.txt" ] || [ -f "nodes.txt" ]; then
+            git add sub.txt nodes.txt
+            # 如果文件内容没有变化，commit 会返回 0 而不报错
             git commit -m "Update nodes: $(date)" || exit 0
             git push origin main
           fi
