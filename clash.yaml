@@ -1,5 +1,20 @@
+port: 7890
+socks-port: 7891
+allow-lan: true
+mode: rule
+log-level: info
+dns:
+  enable: true
+  ipv6: false
+  enhanced-mode: fake-ip
+  nameserver:
+  - 223.5.5.5
+  - 119.29.29.29
+  fallback:
+  - 8.8.8.8
+  - 1.1.1.1
 proxies:
-- name: 02_VLESS_13_2022
+- name: 02_VLESS_13_2101
   type: vless
   server: 195.154.200.13
   port: 17401
@@ -12,7 +27,7 @@ proxies:
     public-key: IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU
     short-id: 8ef4455ba637425b
   client-fingerprint: chrome
-- name: 07_VLESS_v6_2022
+- name: 07_VLESS_v6_2101
   type: vless
   server: 2001:bc8:32d7:181::2
   port: 17401
@@ -25,7 +40,7 @@ proxies:
     public-key: IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU
     short-id: 8ef4455ba637425b
   client-fingerprint: chrome
-- name: 08_VLESS_v6_2022
+- name: 08_VLESS_v6_2101
   type: vless
   server: 2001:bc8:32d7:181::3
   port: 17401
@@ -38,7 +53,7 @@ proxies:
     public-key: IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU
     short-id: 8ef4455ba637425b
   client-fingerprint: chrome
-- name: 09_VLESS_44_2022
+- name: 09_VLESS_44_2101
   type: vless
   server: 157.254.223.44
   port: 18959
@@ -51,7 +66,7 @@ proxies:
     public-key: -hwVEdgFkvjku8ESuDoAA7id5yGGv_zXBvBW_RdhmHA
     short-id: d557c6895d014075
   client-fingerprint: chrome
-- name: 10_VLESS_232_2022
+- name: 10_VLESS_232_2101
   type: vless
   server: 89.144.35.232
   port: 18952
@@ -64,7 +79,7 @@ proxies:
     public-key: cbE6Dwv3-JG7qTLa1QC0nDo33cS0jyeMOkp5pHL65wg
     short-id: 650002d03178115e
   client-fingerprint: chrome
-- name: 11_HYSTERIA2_43_2022
+- name: 11_HYSTERIA2_43_2101
   type: hysteria2
   server: 157.254.223.43
   port: 27921
@@ -72,7 +87,7 @@ proxies:
   tls: true
   sni: apple.com
   skip-cert-verify: true
-- name: 12_HYSTERIA2_146_2022
+- name: 12_HYSTERIA2_146_2101
   type: hysteria2
   server: 62.210.124.146
   port: 22000
@@ -81,28 +96,109 @@ proxies:
   sni: www.microsoft.com
   skip-cert-verify: true
 proxy-groups:
-- name: 🚀 自动选择
-  type: url-test
-  proxies:
-  - 02_VLESS_13_2022
-  - 07_VLESS_v6_2022
-  - 08_VLESS_v6_2022
-  - 09_VLESS_44_2022
-  - 10_VLESS_232_2022
-  - 11_HYSTERIA2_43_2022
-  - 12_HYSTERIA2_146_2022
-  url: http://www.gstatic.com/generate_204
-  interval: 300
-- name: 🔰 节点选择
+- name: 🚀 节点选择
   type: select
   proxies:
-  - 🚀 自动选择
-  - 02_VLESS_13_2022
-  - 07_VLESS_v6_2022
-  - 08_VLESS_v6_2022
-  - 09_VLESS_44_2022
-  - 10_VLESS_232_2022
-  - 11_HYSTERIA2_43_2022
-  - 12_HYSTERIA2_146_2022
+  - ⚡ 自动选择
+  - 02_VLESS_13_2101
+  - 07_VLESS_v6_2101
+  - 08_VLESS_v6_2101
+  - 09_VLESS_44_2101
+  - 10_VLESS_232_2101
+  - 11_HYSTERIA2_43_2101
+  - 12_HYSTERIA2_146_2101
+  - DIRECT
+- name: ⚡ 自动选择
+  type: url-test
+  proxies:
+  - 02_VLESS_13_2101
+  - 07_VLESS_v6_2101
+  - 08_VLESS_v6_2101
+  - 09_VLESS_44_2101
+  - 10_VLESS_232_2101
+  - 11_HYSTERIA2_43_2101
+  - 12_HYSTERIA2_146_2101
+  url: http://www.gstatic.com/generate_204
+  interval: 300
+- name: 🌍 全球直连
+  type: select
+  proxies:
+  - DIRECT
+  - 🚀 节点选择
+- name: 🛑 广告拦截
+  type: select
+  proxies:
+  - REJECT
+  - DIRECT
+  - 🚀 节点选择
+- name: 🍎 苹果服务
+  type: select
+  proxies:
+  - DIRECT
+  - 🚀 节点选择
+  - ⚡ 自动选择
+- name: Ⓜ️ 微软服务
+  type: select
+  proxies:
+  - DIRECT
+  - 🚀 节点选择
+  - ⚡ 自动选择
+- name: 🐟 漏网之鱼
+  type: select
+  proxies:
+  - 🚀 节点选择
+  - DIRECT
+  - ⚡ 自动选择
+rule-providers:
+  reject:
+    type: http
+    behavior: domain
+    url: https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/reject.txt
+    path: ./ruleset/reject.yaml
+    interval: 86400
+  proxy:
+    type: http
+    behavior: domain
+    url: https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/proxy.txt
+    path: ./ruleset/proxy.yaml
+    interval: 86400
+  direct:
+    type: http
+    behavior: domain
+    url: https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/direct.txt
+    path: ./ruleset/direct.yaml
+    interval: 86400
+  private:
+    type: http
+    behavior: domain
+    url: https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/private.txt
+    path: ./ruleset/private.yaml
+    interval: 86400
+  apple:
+    type: http
+    behavior: domain
+    url: https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/apple.txt
+    path: ./ruleset/apple.yaml
+    interval: 86400
+  microsoft:
+    type: http
+    behavior: domain
+    url: https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/microsoft.yaml
+    path: ./ruleset/microsoft.yaml
+    interval: 86400
+  gfw:
+    type: http
+    behavior: domain
+    url: https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/gfw.txt
+    path: ./ruleset/gfw.yaml
+    interval: 86400
 rules:
-- MATCH,🔰 节点选择
+- RULE-SET,private,DIRECT
+- RULE-SET,reject,🛑 广告拦截
+- RULE-SET,apple,🍎 苹果服务
+- RULE-SET,microsoft,Ⓜ️ 微软服务
+- RULE-SET,proxy,🚀 节点选择
+- RULE-SET,gfw,🚀 节点选择
+- GEOIP,LAN,DIRECT
+- GEOIP,CN,🌍 全球直连
+- MATCH,🐟 漏网之鱼
