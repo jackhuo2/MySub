@@ -12,8 +12,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
         with:
-          persist-credentials: true
-          fetch-depth: 0 # 获取完整历史记录以支持 rebase
+          fetch-depth: 0 
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -23,15 +22,18 @@ jobs:
       - name: Install dependencies
         run: pip install requests
 
-      - name: Process Nodes
-        run: python main.py
-
-      - name: Update Repository
+      - name: Sync and Process
         run: |
+          # 1. 配置身份
           git config --global user.email "bot@github.com"
           git config --global user.name "Sub-Bot"
+          
+          # 2. 运行脚本生成新的 sub.txt
+          python main.py
+          
+          # 3. 提交并推送
           git add sub.txt
-          # 关键一步：先拉取云端改动，再提交
+          # 如果云端有更新，先拉取并合并
           git pull --rebase origin main
           git commit -m "Update nodes" || exit 0
           git push
