@@ -8,6 +8,10 @@ on:
 jobs:
   run-sync:
     runs-on: ubuntu-latest
+    # 授予写入权限
+    permissions:
+      contents: write
+      
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -28,12 +32,16 @@ jobs:
           git config --global user.email "bot@github.com"
           git config --global user.name "Sub-Bot"
           
-          # 2. 运行脚本生成新的 sub.txt
+          # 2. 核心修复：先拉取远程更新，确保本地环境干净
+          git pull origin main --rebase
+          
+          # 3. 运行脚本生成新的 sub.txt
           python main.py
           
-          # 3. 提交并推送
-          git add sub.txt
-          # 如果云端有更新，先拉取并合并
-          git pull --rebase origin main
-          git commit -m "Update nodes" || exit 0
-          git push
+          # 4. 提交并推送
+          if [ -f "sub.txt" ]; then
+            git add sub.txt
+            # 如果没有变动 commit 会报错，用 || exit 0 忽略
+            git commit -m "Update nodes: $(date)" || exit 0
+            git push origin main
+          fi
