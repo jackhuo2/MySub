@@ -1,49 +1,50 @@
-name: Auto Update Sub
+name: Update Subscription Nodes
 
 on:
   schedule:
-    - cron: '0 */4 * * *' # 每 4 小时自动运行一次
-  workflow_dispatch:      # 支持手动点击按钮立即运行
-
-# 授予 Actions 写入仓库的权限
-permissions:
-  contents: write
+    # 每 6 小时自动运行一次 (UTC 时间 0, 6, 12, 18 对应北京时间 8, 14, 20, 2)
+    - cron: '0 */6 * * *'
+  workflow_dispatch: # 允许手动点击按钮触发运行
 
 jobs:
-  run-sync:
+  update:
     runs-on: ubuntu-latest
-    
+    permissions: # 显式声明写入权限，防止 Push 失败
+      contents: write
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0 # 获取完整历史以支持 rebase 同步
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.9'
+          python-version: '3.10'
 
-      - name: Install dependencies
+      - name: Install Dependencies
         run: |
-          pip install requests PyYAML
+          python -m pip install --upgrade pip
+          pip install requests pyyaml
 
-      - name: Sync and Process
+      - name: Run Main Script
+        run: python main.py
+
+      - name: Get Current Beijing Time
+        id: date
         run: |
-          # 1. 配置 Git 身份
-          git config --global user.email "bot@github.com"
-          git config --global user.name "Sub-Bot"
+          # 获取北京时间用于 Commit Message
+          echo "BJ_TIME=$(date -d '+8 hours' +'%Y-%m-%d %H:%M')" >> $GITHUB_ENV
+
+      - name: Commit and Push Changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
           
-          # 2. 核心：在运行脚本前先同步远程仓库，防止 rejected 报错
-          git pull origin main --rebase
+          # 检查文件是否存在并添加
+          git add node.txt sub.txt clash.yaml || echo "Some files were not generated"
           
-          # 3. 运行 Python 脚本 (生成 sub.txt 和 nodes.txt)
-          python main.py
+          # 只有在有变动时才提交，防止 Action 报错
+          git commit -m "自动更新节点: ${{ env.BJ_TIME }}" || echo "No changes to commit"
           
-          # 4. 检查并提交生成的文件
-          if [ -f "sub.txt" ] || [ -f "nodes.txt" ]; then
-            git add sub.txt nodes.txt
-            # 如果文件内容没有变化，commit 会返回 0 而不报错
-            git commit -m "Update nodes: $(date)" || exit 0
-            git push origin main
-          fi
+          # 推送到 main 分支（如果你的分支叫 master，请修改为 master）
+          git push origin main
