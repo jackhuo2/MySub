@@ -2,13 +2,12 @@ name: Auto Update Sub
 
 on:
   schedule:
-    - cron: '0 */4 * * *' # 每 4 小时运行一次
-  workflow_dispatch:      # 允许手动触发
+    - cron: '0 */4 * * *'
+  workflow_dispatch:
 
 jobs:
   run-sync:
     runs-on: ubuntu-latest
-    # 授予写入权限
     permissions:
       contents: write
       
@@ -28,20 +27,18 @@ jobs:
 
       - name: Sync and Process
         run: |
-          # 1. 配置身份
           git config --global user.email "bot@github.com"
           git config --global user.name "Sub-Bot"
           
-          # 2. 核心修复：先拉取远程更新，确保本地环境干净
+          # 1. 先同步，防止 rejected
           git pull origin main --rebase
           
-          # 3. 运行脚本生成新的 sub.txt
+          # 2. 运行脚本
           python main.py
           
-          # 4. 提交并推送
+          # 3. 提交
           if [ -f "sub.txt" ]; then
             git add sub.txt
-            # 如果没有变动 commit 会报错，用 || exit 0 忽略
             git commit -m "Update nodes: $(date)" || exit 0
             git push origin main
           fi
