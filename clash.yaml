@@ -1,5 +1,5 @@
 proxies:
-- name: VLESS_13_02_2017
+- name: 02_VLESS_13_2022
   type: vless
   server: 195.154.200.13
   port: 17401
@@ -12,7 +12,7 @@ proxies:
     public-key: IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU
     short-id: 8ef4455ba637425b
   client-fingerprint: chrome
-- name: VLESS_v6_07_2017
+- name: 07_VLESS_v6_2022
   type: vless
   server: 2001:bc8:32d7:181::2
   port: 17401
@@ -25,7 +25,7 @@ proxies:
     public-key: IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU
     short-id: 8ef4455ba637425b
   client-fingerprint: chrome
-- name: VLESS_v6_08_2017
+- name: 08_VLESS_v6_2022
   type: vless
   server: 2001:bc8:32d7:181::3
   port: 17401
@@ -38,7 +38,7 @@ proxies:
     public-key: IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU
     short-id: 8ef4455ba637425b
   client-fingerprint: chrome
-- name: VLESS_44_09_2017
+- name: 09_VLESS_44_2022
   type: vless
   server: 157.254.223.44
   port: 18959
@@ -51,7 +51,7 @@ proxies:
     public-key: -hwVEdgFkvjku8ESuDoAA7id5yGGv_zXBvBW_RdhmHA
     short-id: d557c6895d014075
   client-fingerprint: chrome
-- name: VLESS_232_10_2017
+- name: 10_VLESS_232_2022
   type: vless
   server: 89.144.35.232
   port: 18952
@@ -64,7 +64,7 @@ proxies:
     public-key: cbE6Dwv3-JG7qTLa1QC0nDo33cS0jyeMOkp5pHL65wg
     short-id: 650002d03178115e
   client-fingerprint: chrome
-- name: HYSTERIA2_43_11_2017
+- name: 11_HYSTERIA2_43_2022
   type: hysteria2
   server: 157.254.223.43
   port: 27921
@@ -72,7 +72,7 @@ proxies:
   tls: true
   sni: apple.com
   skip-cert-verify: true
-- name: HYSTERIA2_146_12_2017
+- name: 12_HYSTERIA2_146_2022
   type: hysteria2
   server: 62.210.124.146
   port: 22000
@@ -84,14 +84,25 @@ proxy-groups:
 - name: 🚀 自动选择
   type: url-test
   proxies:
-  - VLESS_13_02_2017
-  - VLESS_v6_07_2017
-  - VLESS_v6_08_2017
-  - VLESS_44_09_2017
-  - VLESS_232_10_2017
-  - HYSTERIA2_43_11_2017
-  - HYSTERIA2_146_12_2017
+  - 02_VLESS_13_2022
+  - 07_VLESS_v6_2022
+  - 08_VLESS_v6_2022
+  - 09_VLESS_44_2022
+  - 10_VLESS_232_2022
+  - 11_HYSTERIA2_43_2022
+  - 12_HYSTERIA2_146_2022
   url: http://www.gstatic.com/generate_204
   interval: 300
+- name: 🔰 节点选择
+  type: select
+  proxies:
+  - 🚀 自动选择
+  - 02_VLESS_13_2022
+  - 07_VLESS_v6_2022
+  - 08_VLESS_v6_2022
+  - 09_VLESS_44_2022
+  - 10_VLESS_232_2022
+  - 11_HYSTERIA2_43_2022
+  - 12_HYSTERIA2_146_2022
 rules:
-- MATCH,🚀 自动选择
+- MATCH,🔰 节点选择
