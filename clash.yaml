@@ -1,10 +1,9 @@
 proxies:
-- name: VLESS_13_17401_1231-2004
+- name: VLESS_13_17401_daef_2012
   type: vless
   server: 195.154.200.13
   port: 17401
   uuid: add14a5b-f648-4423-8a1f-8b8f54c0daef
-  cipher: auto
   tls: true
   udp: true
   servername: itunes.apple.com
@@ -13,12 +12,11 @@ proxies:
     public-key: IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU
     short-id: 8ef4455ba637425b
   client-fingerprint: chrome
-- name: VLESS_v6_17401_1231-2004
+- name: VLESS_v6_17401_daef_2012
   type: vless
   server: 2001:bc8:32d7:181::2
   port: 17401
   uuid: add14a5b-f648-4423-8a1f-8b8f54c0daef
-  cipher: auto
   tls: true
   udp: true
   servername: itunes.apple.com
@@ -27,12 +25,11 @@ proxies:
     public-key: IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU
     short-id: 8ef4455ba637425b
   client-fingerprint: chrome
-- name: VLESS_v6_17401_1231-2004
+- name: VLESS_v6_17401_daef_2012
   type: vless
   server: 2001:bc8:32d7:181::3
   port: 17401
   uuid: add14a5b-f648-4423-8a1f-8b8f54c0daef
-  cipher: auto
   tls: true
   udp: true
   servername: itunes.apple.com
@@ -41,12 +38,11 @@ proxies:
     public-key: IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU
     short-id: 8ef4455ba637425b
   client-fingerprint: chrome
-- name: VLESS_44_18959_1231-2004
+- name: VLESS_44_18959_cefa_2012
   type: vless
   server: 157.254.223.44
   port: 18959
   uuid: d0b3e27d-bbfc-4a3b-8e60-6973de8fcefa
-  cipher: auto
   tls: true
   udp: true
   servername: itunes.apple.com
@@ -55,12 +51,11 @@ proxies:
     public-key: -hwVEdgFkvjku8ESuDoAA7id5yGGv_zXBvBW_RdhmHA
     short-id: d557c6895d014075
   client-fingerprint: chrome
-- name: VLESS_232_18952_1231-2004
+- name: VLESS_232_18952_13a4_2012
   type: vless
   server: 89.144.35.232
   port: 18952
   uuid: 939db115-dea1-4806-a9fc-bd4e6c0213a4
-  cipher: auto
   tls: true
   udp: true
   servername: itunes.apple.com
@@ -69,7 +64,7 @@ proxies:
     public-key: cbE6Dwv3-JG7qTLa1QC0nDo33cS0jyeMOkp5pHL65wg
     short-id: 650002d03178115e
   client-fingerprint: chrome
-- name: HYSTERIA2_43_27921_1231-2004
+- name: HYSTERIA2_43_27921_.com_2012
   type: hysteria2
   server: 157.254.223.43
   port: 27921
@@ -77,7 +72,7 @@ proxies:
   tls: true
   sni: apple.com
   skip-cert-verify: true
-- name: HYSTERIA2_146_22000_1231-2004
+- name: HYSTERIA2_146_22000_.com_2012
   type: hysteria2
   server: 62.210.124.146
   port: 22000
@@ -89,13 +84,13 @@ proxy-groups:
 - name: 🚀 自动选择
   type: url-test
   proxies:
-  - VLESS_13_17401_1231-2004
-  - VLESS_v6_17401_1231-2004
-  - VLESS_v6_17401_1231-2004
-  - VLESS_44_18959_1231-2004
-  - VLESS_232_18952_1231-2004
-  - HYSTERIA2_43_27921_1231-2004
-  - HYSTERIA2_146_22000_1231-2004
+  - VLESS_13_17401_daef_2012
+  - VLESS_v6_17401_daef_2012
+  - VLESS_v6_17401_daef_2012
+  - VLESS_44_18959_cefa_2012
+  - VLESS_232_18952_13a4_2012
+  - HYSTERIA2_43_27921_.com_2012
+  - HYSTERIA2_146_22000_.com_2012
   url: http://www.gstatic.com/generate_204
   interval: 300
 rules:
