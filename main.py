@@ -2,6 +2,7 @@ import json
 import requests
 import base64
 import yaml
+import urllib.parse
 
 URL_SOURCES = [
     "https://www.gitlabip.xyz/Alvin9999/PAC/refs/heads/master/backup/img/1/2/ipp/hysteria2/1/config.json",
@@ -49,14 +50,20 @@ def parse_to_link(item):
 
     tls_data = item.get('tls', {})
     if isinstance(tls_data, bool): tls_data = {}
-    sni = item.get('servername') or item.get('sni') or tls_data.get('server_name') or tls_data.get('sni') or "www.bing.com"
-    node_name = f"{p_type.upper()}_{str(server).split('.')[-1]}_{port}"
+    sni = item.get('servername') or item.get('sni') or tls_data.get('server_name') or tls_data.get('sni') or "www.microsoft.com"
+    
+    # 对备注进行 URL 编码，解决 IPv6 导入失败问题
+    raw_tag = f"{p_type.upper()}_{server}_{port}"
+    node_name = urllib.parse.quote(raw_tag)
+    
     server_display = f"[{server}]" if ":" in str(server) and "[" not in str(server) and "," not in str(server) else server
 
-    # --- 核心适配逻辑 ---
+    # --- 按照你导入成功的样本进行精准适配 ---
+    
     if p_type in ['hysteria2', 'hy2']:
         auth = item.get('auth') or item.get('password') or item.get('auth-str')
-        return f"hysteria2://{auth}@{server_display}:{port}?sni={sni}&insecure=1#{node_name}"
+        # 补全 insecure=1 和 allowInsecure=1
+        return f"hysteria2://{auth}@{server_display}:{port}?sni={sni}&insecure=1&allowInsecure=1#{node_name}"
 
     elif p_type == 'vless':
         uuid = item.get('uuid') or item.get('id')
@@ -67,16 +74,17 @@ def parse_to_link(item):
         sid = ropts.get('short-id') or rbox.get('short_id')
         if pbk: link += f"&pbk={pbk}"
         if sid: link += f"&sid={sid}"
+        # 补全 v2rayN 要求的传输层参数
+        link += "&type=tcp&headerType=none"
         return f"{link}#{node_name}"
 
     elif p_type == 'tuic':
         uuid = item.get('uuid') or item.get('id') or item.get('password')
-        # v2rayN v7.x 极简格式：不带 version，使用 allowInsecure
         return f"tuic://{uuid}@{server_display}:{port}?sni={sni}&alpn=h3&allowInsecure=1#{node_name}"
     
     elif p_type == 'hysteria':
         auth = item.get('auth') or item.get('auth-str')
-        return f"hysteria://{server_display}:{port}?auth={auth}&sni={sni}&insecure=1#{node_name}"
+        return f"hysteria://{server_display}:{port}?auth={auth}&sni={sni}&insecure=1&allowInsecure=1#{node_name}"
 
     return None
 
@@ -110,7 +118,7 @@ def main():
         with open("nodes.txt", "w", encoding="utf-8") as f: f.write(full_content)
         encoded_content = base64.b64encode(full_content.strip().encode("utf-8")).decode("utf-8")
         with open("sub.txt", "w", encoding="utf-8") as f: f.write(encoded_content)
-        print(f"✅ 搞定！")
+        print("✅ 脚本已根据成功样本完成更新！")
 
 if __name__ == "__main__":
     main()
