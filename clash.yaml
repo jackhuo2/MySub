@@ -14,7 +14,7 @@ dns:
   - 8.8.8.8
   - 1.1.1.1
 proxies:
-- name: 02_VLESS_node_1451
+- name: 02_VLESS_node_2051
   type: vless
   server: 2001:bc8:32d7:181::2
   port: 17401
@@ -27,7 +27,7 @@ proxies:
     public-key: IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU
     short-id: 8ef4455ba637425b
   client-fingerprint: chrome
-- name: 03_VLESS_node_1451
+- name: 03_VLESS_node_2051
   type: vless
   server: 2001:bc8:32d7:181::3
   port: 17401
@@ -40,7 +40,7 @@ proxies:
     public-key: IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU
     short-id: 8ef4455ba637425b
   client-fingerprint: chrome
-- name: 04_VLESS_node_1451
+- name: 04_VLESS_node_2051
   type: vless
   server: 2001:bc8:32d7:181::4
   port: 17401
@@ -53,7 +53,7 @@ proxies:
     public-key: IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU
     short-id: 8ef4455ba637425b
   client-fingerprint: chrome
-- name: 05_VLESS_node_1451
+- name: 05_VLESS_node_2051
   type: vless
   server: 2001:bc8:32d7:181::5
   port: 17401
@@ -66,7 +66,7 @@ proxies:
     public-key: IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU
     short-id: 8ef4455ba637425b
   client-fingerprint: chrome
-- name: 06_HYSTERIA2_14_1451
+- name: 06_HYSTERIA2_14_2051
   type: hysteria2
   server: 45.221.98.14
   port: 59901
@@ -74,7 +74,7 @@ proxies:
   tls: true
   sni: ''
   skip-cert-verify: true
-- name: 07_VLESS_44_1451
+- name: 07_VLESS_44_2051
   type: vless
   server: 157.254.223.44
   port: 18959
@@ -87,7 +87,7 @@ proxies:
     public-key: -hwVEdgFkvjku8ESuDoAA7id5yGGv_zXBvBW_RdhmHA
     short-id: d557c6895d014075
   client-fingerprint: chrome
-- name: 08_VLESS_232_1451
+- name: 08_VLESS_232_2051
   type: vless
   server: 89.144.35.232
   port: 15531
@@ -100,7 +100,7 @@ proxies:
     public-key: o4gXQf1n5YOoLo6OnyHykodK1ZShHvDqu1FgxNHe6n8
     short-id: 8346964417a2552b
   client-fingerprint: chrome
-- name: 09_HYSTERIA2_34_1451
+- name: 09_HYSTERIA2_34_2051
   type: hysteria2
   server: 89.144.35.34
   port: 50022
@@ -108,7 +108,7 @@ proxies:
   tls: true
   sni: apple.com
   skip-cert-verify: true
-- name: 10_HYSTERIA2_146_1451
+- name: 10_HYSTERIA2_146_2051
   type: hysteria2
   server: 62.210.124.146
   port: 22000
@@ -121,28 +121,28 @@ proxy-groups:
   type: select
   proxies:
   - ⚡ 自动选择
-  - 02_VLESS_node_1451
-  - 03_VLESS_node_1451
-  - 04_VLESS_node_1451
-  - 05_VLESS_node_1451
-  - 06_HYSTERIA2_14_1451
-  - 07_VLESS_44_1451
-  - 08_VLESS_232_1451
-  - 09_HYSTERIA2_34_1451
-  - 10_HYSTERIA2_146_1451
+  - 02_VLESS_node_2051
+  - 03_VLESS_node_2051
+  - 04_VLESS_node_2051
+  - 05_VLESS_node_2051
+  - 06_HYSTERIA2_14_2051
+  - 07_VLESS_44_2051
+  - 08_VLESS_232_2051
+  - 09_HYSTERIA2_34_2051
+  - 10_HYSTERIA2_146_2051
   - DIRECT
 - name: ⚡ 自动选择
   type: url-test
   proxies:
-  - 02_VLESS_node_1451
-  - 03_VLESS_node_1451
-  - 04_VLESS_node_1451
-  - 05_VLESS_node_1451
-  - 06_HYSTERIA2_14_1451
-  - 07_VLESS_44_1451
-  - 08_VLESS_232_1451
-  - 09_HYSTERIA2_34_1451
-  - 10_HYSTERIA2_146_1451
+  - 02_VLESS_node_2051
+  - 03_VLESS_node_2051
+  - 04_VLESS_node_2051
+  - 05_VLESS_node_2051
+  - 06_HYSTERIA2_14_2051
+  - 07_VLESS_44_2051
+  - 08_VLESS_232_2051
+  - 09_HYSTERIA2_34_2051
+  - 10_HYSTERIA2_146_2051
   url: http://www.gstatic.com/generate_204
   interval: 300
 - name: 🌍 全球直连
